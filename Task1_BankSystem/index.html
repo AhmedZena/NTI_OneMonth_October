@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Add Users</title>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f0f0f0;
+            }
+
+            form {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+
+            label,
+            input {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            table {
+                width: 100%;
+                background-color: #fff;
+                border-collapse: collapse;
+            }
+
+            th,
+            td {
+                padding: 10px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #333;
+                color: #fff;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            button {
+                padding: 5px 10px;
+                background-color: #333;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            button:hover {
+                background-color: #555;
+            }
+        </style>
+    </head>
+
+    <body>
+        <form id="addUserForm">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter name" required>
+            <label for="balance">Balance</label>
+            <input type="number" id="balance" name="balance" placeholder="Enter balance" required>
+            <button type="submit">Add User</button>
+        </form>
+        <table>
+            <thead id="tableHead">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Balance</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+        <script>
+            let addUserForm = document.getElementById( "addUserForm" );
+            let tbody = document.getElementById( "tbody" );
+            let tableHead = document.getElementById( "tableHead" );
+            let arrUsers = JSON.parse( localStorage.getItem( "users" ) ) || [];
+
+            function renderTable() {
+                tbody.innerHTML = "";
+                tableHead.style.display = arrUsers.length > 0 ? "table-row-group" : "none"; // Hide thead if no users
+                for ( let i = 0; i < arrUsers.length; i++ ) {
+                    let tr = document.createElement( "tr" );
+                    let tdId = document.createElement( "td" );
+                    tdId.innerHTML = arrUsers[ i ].id;
+                    let tdName = document.createElement( "td" );
+                    tdName.innerHTML = arrUsers[ i ].name;
+                    let tdBalance = document.createElement( "td" );
+                    tdBalance.innerHTML = arrUsers[ i ].balance;
+                    let deleteBtn = document.createElement( "button" );
+                    deleteBtn.innerHTML = "Delete";
+                    let editUserBalanceById = document.createElement( "button" );
+                    editUserBalanceById.innerHTML = "Edit Balance";
+                    tr.appendChild( tdId );
+                    tr.appendChild( tdName );
+                    tr.appendChild( tdBalance );
+                    tr.appendChild( deleteBtn );
+                    tr.appendChild( editUserBalanceById );
+                    tbody.appendChild( tr );
+
+                    deleteBtn.addEventListener( "click", function () {
+                        arrUsers.splice( i, 1 );
+                        renderTable();
+                        localStorage.setItem( "users", JSON.stringify( arrUsers ) );
+                    } );
+
+                    editUserBalanceById.addEventListener( "click", function () {
+                        let newBalance = prompt( "Enter new balance" );
+                        if ( newBalance !== null ) {
+                            arrUsers[ i ].balance = newBalance;
+                            renderTable();
+                            localStorage.setItem( "users", JSON.stringify( arrUsers ) );
+                        }
+                    } );
+                }
+            }
+
+            renderTable();
+
+            addUserForm.addEventListener( "submit", function ( e ) {
+                e.preventDefault();
+                let name = addUserForm.elements.name.value;
+                let balance = addUserForm.elements.balance.value;
+                let userObj = {
+                    id: arrUsers.length + 1,
+                    name: name,
+                    balance: balance,
+                };
+                arrUsers.push( userObj );
+                addUserForm.reset();
+                renderTable();
+                localStorage.setItem( "users", JSON.stringify( arrUsers ) );
+            } );
+        </script>
+    </body>
+
+</html>
